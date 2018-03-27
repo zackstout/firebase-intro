@@ -9,8 +9,14 @@
     <h2 id="header">hi firebase</h2>
 
 
+    <button type="button" name="button" id="signIn">Sign in</button>
+    <button type="button" name="button" id="signOut">Sign Out</button>
+
+
+
 
     <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+    <!-- Very interesting! Couldn't move this into client.js...: -->
     <script>
       // Initialize Firebase
       var config = {
@@ -23,7 +29,46 @@
       };
       firebase.initializeApp(config);
     </script>
-    <script src="client.js" charset="utf-8"></script>
+
+
+    <!-- Strange....it works if we put the code directly in here.....but not if we source it in: -->
+    <script type="text/javascript">
+
+
+    var header = document.getElementById('header');
+    console.log(header);
+    var dbRef = firebase.database().ref().child('header');
+
+    // Why can't we see these logs?!?
+    console.log('hi');
+    dbRef.on('value', function(snap) {
+      console.log(snap);
+      console.log('hi');
+
+      header.innerText = snap.val();
+    });
+
+    var signIn = document.getElementById("signIn");
+    var signOut = document.getElementById("signOut");
+    console.log(signIn);
+
+    var provider = new firebase.auth.GoogleAuthProvider();
+
+    signIn.addEventListener('click', function() {
+      console.log('clickin');
+      firebase.auth().signInWithPopUp(provider).then(function(user) {
+        if (user) {
+          // dbRef.on('value', function(snap) {
+          //   console.log(snap);
+          //   header.innerText = snap.val();
+          // });
+        }
+      });
+    });
+    </script>
+
+
+    <!-- <script src="client.js" charset="utf-8"></script> -->
 
   </body>
 </html>

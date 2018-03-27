@@ -11,9 +11,8 @@
 
     <button type="button" name="button" id="signIn">Sign in</button>
     <button type="button" name="button" id="signOut">Sign Out</button>
-
-
-
+    <br><br>
+    <textarea name="name" id="playground" cols="50" rows="50"></textarea>
 
     <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
     <!-- Very interesting! Couldn't move this into client.js...: -->
@@ -39,14 +38,9 @@
     console.log(header);
     var dbRef = firebase.database().ref().child('header');
 
-    // Why can't we see these logs?!?
+    // Why can't we see these logs?!? had to bring directly into index!
     console.log('hi');
-    dbRef.on('value', function(snap) {
-      console.log(snap);
-      console.log('hi');
 
-      header.innerText = snap.val();
-    });
 
     var signIn = document.getElementById("signIn");
     var signOut = document.getElementById("signOut");
@@ -56,19 +50,42 @@
 
     signIn.addEventListener('click', function() {
       console.log('clickin');
-      firebase.auth().signInWithPopUp(provider).then(function(user) {
+      // Note, we also have to enable Google in the Auth tab of firebase to do this:
+      // Wow it's nuts how easy this is:
+      firebase.auth().signInWithPopup(provider).then(function(user) {
         if (user) {
-          // dbRef.on('value', function(snap) {
-          //   console.log(snap);
-          //   header.innerText = snap.val();
-          // });
+          dbRef.on('value', function(snap) {
+            console.log(snap);
+            header.innerText = snap.val();
+          });
+
+          playRef.on('value', function(snap) {
+            console.log(snap);
+            playground.value = snap.val();
+          });
         }
       });
     });
+
+    signOut.addEventListener('click', () => {
+      firebase.auth().signOut().then(() => {
+        header.innerText = 'Log in homie!';
+        playground.value = 'Really, it\'ll be fun';
+      });
+    });
+
+
+    var playground = document.getElementById('playground');
+    var playRef = firebase.database().ref().child('playground');
+
+    // shouldn't allow this to happen unless logged in:
+    playground.addEventListener('keyup', () => {
+      playRef.set(playground.value);
+    });
+
+
+
     </script>
-
-
-    <!-- <script src="client.js" charset="utf-8"></script> -->
 
   </body>
 </html>
